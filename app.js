@@ -5,7 +5,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 const app = express();
-const https = require('https');
+const http = require('http');
 const fs = require('fs');
 
 // Load environment variables
@@ -72,15 +72,15 @@ app.get('/api/payments', paymentController.getAllPayments);
 app.get('/api/payments/:Bill_id/receipt', paymentController.printReceipt);
 
 // HTTPS server options
-const options = {
-  key: fs.readFileSync('path/to/your/private-key.pem'),
-  cert: fs.readFileSync('path/to/your/certificate.pem')
-};
+//const options = {
+ // key: fs.readFileSync(path.join(__dirname, 'certs', 'private-key.pem')),
+ // cert: fs.readFileSync(path.join(__dirname, 'certs', 'certificate.pem'))
+//};
 
 // Set the server port from the environment variable or default to 3000
 const PORT = process.env.PORT || 3000;
 
 // Start the HTTPS server
-https.createServer(options, app).listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`HTTPS Server running on port ${PORT}`);
 });

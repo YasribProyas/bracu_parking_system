@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+
+  <div class="container">
+    <h1>Admin Dashboard</h1>
+    <button onclick="window.location.href='/logout'">Logout</button>
+    <!-- <form action="php/register.php" method="post"></form>
+            <input type="text" id="userName" placeholder="Username">
+            <input type="text" id="userEmail" placeholder="Email">
+            <button onclick="addUser()">Add User</button>
+
+          </form> -->
+    <div class="cards">
+      <div class="card">
+        <h2>Total Due</h2>
+        <p id="totalDue">0.00 tk</p>
+      </div>
+      <div class="card">
+        <h2>Total Earnings</h2>
+        <p id="totalEarnings">0.00 tk</p>
+      </div>
+    </div>
+
+    <div id="user_table">
+      <h2>List of users</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Username</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>user1</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>user2</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>user3</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="booking_table">
+
+      <h2>Booking List</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>User</th>
+            <th>Parking Spot</th>
+            <th>Vehicle Number</th>
+            <th>Vehicle Type</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>user1</td>
+            <td>Spot A</td>
+            <td>10:00 AM</td>
+            <td>11:00 AM</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>user2</td>
+            <td>Spot B</td>
+            <td>11:00 AM</td>
+            <td>12:00 PM</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>user3</td>
+            <td>Spot C</td>
+            <td>12:00 PM</td>
+            <td>01:00 PM</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  </div>
+
+  <script src="admin.js"></script>
+
+</body>
+
+</html>

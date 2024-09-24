@@ -2,7 +2,14 @@
 const User = require('../models/userModel');
 
 exports.getAllUsers = (req, res) => {
-  User.getAllUsers((users) => {
-    res.render('user', { users });
-  });
+  console.log('Fetching all users');
+
+  User.getAllUsers().then(
+    (users) => {
+      // res.render('user', { users });
+      // console.log(users);
+
+      return res.status(200).json(users);
+    }
+  )
 };

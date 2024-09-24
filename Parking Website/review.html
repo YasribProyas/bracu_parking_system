@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave a Review</title>
+    <link rel="stylesheet" href="review.css">
+</head>
+<body>
+    <div class="review-container">
+        <h1>Leave Your Review</h1>
+        <form action="php/review.php" method="post">
+            <!-- Dropdown for Review Category -->
+            <h2>Select Review Category</h2>
+            <label for="category">Choose a category:</label>
+            <select name="category" id="category" required>
+                <option value="" disabled selected>Select a category</option>
+                <option value="location">Location</option>
+                <option value="paying">Paying</option>
+                <option value="service">Service</option>
+                <option value="website">Website</option>
+            </select>
+
+            <!-- Textarea for User Review -->
+            <h2>Your Review</h2>
+            <textarea name="review" placeholder="Leave your review here..." required></textarea>
+
+            <!-- Star Rating -->
+            <h2>Rate the Category</h2>
+            <div class="star-rating">
+                <input type="radio" name="rating" value="5" id="star5"><label for="star5">★</label>
+                <input type="radio" name="rating" value="4" id="star4"><label for="star4">★</label>
+                <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
+                <input type="radio" name="rating" value="2" id="star2"><label for="star2">★</label>
+                <input type="radio" name="rating" value="1" id="star1"><label for="star1">★</label>
+            </div>
+
+            <!-- Submit Button -->
+            <input type="submit" value="Submit Review">
+        </form>
+    </div>
+    <script src="review.js"></script>
+</body>
+</html>

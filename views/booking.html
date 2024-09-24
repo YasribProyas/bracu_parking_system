@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Page</title>
+  <link rel="stylesheet" href="booking.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Booking</h1>
+    <!-- <p>Here you can book a parking space.</p> -->
+
+    <form action="/bookings/book" method="POST">
+      <!-- <label for="UserID">User ID:</label>
+      <input type="number" name="UserID" id="UserID" required><br><br> -->
+      <label for="Start_time">Start Time:</label>
+      <select name="Start_time" id="Start_time" required></select>
+      </select><br><br>
+      <!-- <input type="time" name="Start_time" id="Start_time" required><br><br> -->
+
+      <label for="End_time">End Time:</label>
+      <select name="End_time" id="End_time" required></select>
+      </select><br><br>
+      <!-- <input type="time" name="End_time" id="End_time" required><br><br> -->
+
+      <button id="fetchSpace">get available Spaces</button>
+
+      <div id="finalize">
+
+        <label for="Location_ID">Location ID:</label>
+        <select name="Location_ID" id="Location_ID" required>
+          <option value="">Select a location</option>
+        </select><br><br>
+
+        <label for="Vehicle_Number">Vehicle Number:</label>
+        <input type="text" name="Vehicle_Number" id="Vehicle_Number" required><br><br>
+        <label for="Vehicle_Type">Vehicle Type:</label>
+        <select name="Vehicle_Type" id="Vehicle_Type" required>
+          <option value="">Select Vehicle Type</option>
+          <option value="bike">Bike</option>
+          <option value="car">Car</option>
+        </select>
+        <!-- <input type="text" name="Vehicle_Type" id="Vehicle_Type" required><br><br> -->
+        <!--
+        <label for="Date">Date:</label>
+        <input type="date" name="Date" id="Date" required><br><br> -->
+        <button type="submit">Book Parking</button>
+      </div>
+
+
+
+    </form>
+
+    <button onclick="window.location.href='/'">Back to Home</button>
+  </div>
+
+  <script src="booking.js"></script>
+</body>
+
+</html>

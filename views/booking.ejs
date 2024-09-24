@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Page</title>
+    <link rel="stylesheet" href="booking.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Booking</h1>
+        <p>Here you can book a parking space.</p>
+
+        <form action="/api/book-parking" method="POST">
+            <label for="UserID">User ID:</label>
+            <input type="number" name="UserID" id="UserID" required><br><br>
+
+            <label for="Location_ID">Location ID:</label>
+            <select name="Location_ID" id="Location_ID" required>
+                <option value="">Select a location</option>
+                <% availableSpaces.forEach(space=> { %>
+                    <option value="<%= space.Location_ID %>">
+                        <%= space.Location_ID %>
+                    </option>
+                    <% }) %>
+            </select><br><br>
+
+            <label for="Vehicle_Number">Vehicle Number:</label>
+            <input type="text" name="Vehicle_Number" id="Vehicle_Number" required><br><br>
+
+            <label for="Vehicle_Type">Vehicle Type:</label>
+            <input type="text" name="Vehicle_Type" id="Vehicle_Type" required><br><br>
+
+            <label for="Date">Date:</label>
+            <input type="date" name="Date" id="Date" required><br><br>
+
+            <label for="Start_time">Start Time:</label>
+            <select name="Start_time" id="Start_time" required>
+                <option value="">Select start time</option>
+                <% for (let hour=6; hour <=21; hour++) { %>
+                    <option value="<%= hour %>:00">
+                        <%= hour %>:00
+                    </option>
+                    <% } %>
+            </select><br><br>
+
+            <label for="End_time">End Time:</label>
+            <select name="End_time" id="End_time" required>
+                <option value="">Select end time</option>
+                <% for (let hour=7; hour <=22; hour++) { %>
+                    <option value="<%= hour %>:00">
+                        <%= hour %>:00
+                    </option>
+                    <% } %>
+            </select><br><br>
+
+            <button type="submit">Book Parking</button>
+        </form>
+
+        <button onclick="window.location.href='/'">Back to Home</button>
+    </div>
+</body>
+
+</html>

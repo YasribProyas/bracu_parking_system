@@ -1,73 +1,128 @@
-// controllers/bookingController.js
-const db = require('../db');
-const Booking = require('../models/bookingModel');
-const BookingReservation = require('../models/bookingModel');
+const { Sequelize, QueryTypes } = require('sequelize');
+const db = require('../db'); // Assuming you have a db configuration file
 
-exports.getAllBookings = (req, res) => {
-    Booking.getAllBookings((bookings) => {
-        res.render('booking_reservation', {bookings});
+
+exports.getAllBookings = async (req, res) => {
+  try {
+    const bookingsQuery = 'SELECT * FROM booking_reservation';
+    const bookings = await db.query(bookingsQuery, {
+      type: QueryTypes.SELECT
     });
+    // console.log(bookings);
+
+    return res.status(200).json(bookings);
+  } catch (err) {
+    console.error('Error fetching bookings:', err);
+    throw new Error('Error fetching bookings');
+  }
 };
 
-// Function to check availability
-const checkAvailability = (Location_ID, Date, Car_Type, Start_time, End_time, callback) => {
-  const query = `
-    SELECT * FROM parking_space
-    WHERE Location_ID = ? 
-      AND Date = ? 
-      AND Car_Tupe = ?
-      AND Start_time <= ? 
-      AND End_time >= ?;
+exports.getTotalFees = async (req, res) => {
+  try {
+    const feesQuery = 'SELECT SUM(fees) as total_fees FROM booking_reservation';
+    const fees = await db.query(feesQuery, {
+      type: QueryTypes.SELECT
+    });
+
+    return fees[0].total_fees;
+  } catch (err) {
+    console.error('Error fetching fees:', err);
+    throw new Error('Error fetching fees');
+  }
+};
+
+// Function to check availability of a parking space
+const checkAvailability = async (Location_ID, Start_time, End_time) => {
+  const checkQuery = `
+    SELECT * FROM time_slots
+    WHERE slot_time >= :start_time AND slot_time < :end_time;
   `;
-  db.query(query, [Location_ID, Date, Car_Type, Start_time, End_time], (err, results) => {
-    if (err) return callback(err, null);
-    callback(null, results);
+  const results = await db.query(checkQuery, {
+    replacements: { start_time: Start_time, end_time: End_time },
+    type: QueryTypes.SELECT
   });
+
+  // Check if any slot is available in the given time range
+  return results.every(row => row[Location_ID] === 0);
+};
+
+// Function to calculate booking fees
+const timeStr2TimeNum = (timeStr) => Number(timeStr.split(':')[0]);
+
+const calculateFees = (Start_time, End_time, Vehicle_Type) => {
+  const durationInHours = (timeStr2TimeNum(End_time) - timeStr2TimeNum(Start_time));
+  console.log(durationInHours);
+
+  const ratePerHour = Vehicle_Type == "Bike" ? 50 : 100; // Example rate per hour
+  return durationInHours * ratePerHour;
 };
 
 // Function to book a parking space
-const bookParking = (User_id, Location_ID, Car_Number, Car_Type, Date, Start_time, End_time, callback) => {
-  // First, check if the parking space is available
-  checkAvailability(Location_ID, Date, Car_Type, Start_time, End_time, (err, availability) => {
-    if (err) return callback(err, null);
-    
-    if (availability.length > 0) {
+exports.bookParking = async (User_id, Location_ID, Vehicle_Number, Vehicle_Type, Start_time, End_time) => {
+  try {
+    // First, check if the parking space is available
+    const isAvailable = await checkAvailability(Location_ID, Start_time, End_time);
+
+    if (isAvailable) {
+      // Calculate the booking fees
+      const fees = calculateFees(Start_time, End_time, Vehicle_Type);
+
       // Parking space is available, proceed to book
       const insertBookingQuery = `
-        INSERT INTO booking_reservation (UserID, Location_ID, Car_Number, Car_Type, Date, Start_time, End_time)
-        VALUES (?, ?, ?, ?, ?, ?, ?);
+        INSERT INTO booking_reservation (UserID, Location_ID, Vehicle_Number, Vehicle_Type, Start_time, End_time, fees)
+        VALUES (:user_id, :location_id, :vehicle_number, :vehicle_type, :start_time, :end_time, :fees);
       `;
-      db.query(insertBookingQuery, [User_id, Location_ID, Car_Number, Car_Type, date, start_time, end_time], (err, result) => {
-        if (err) return callback(err, null);
-
-        // After successful booking, delete the parking space
-        const deleteParkingQuery = `
-          DELETE FROM parking_space
-          WHERE Location_ID = ? 
-            AND available_date = ? 
-            AND start_time = ? 
-            AND end_time = ?;
-        `;
-        db.query(deleteParkingQuery, [Location_ID, Date, Car_Type, Start_time, End_time], (err, result) => {
-          if (err) return callback(err, null);
-          callback(null, { message: 'Booking successful and parking space removed' });
-        });
+      await db.query(insertBookingQuery, {
+        replacements: {
+          user_id: User_id,
+          location_id: Location_ID,
+          vehicle_number: Vehicle_Number,
+          vehicle_type: Vehicle_Type,
+          start_time: Start_time,
+          end_time: End_time,
+          fees: fees
+        },
+        type: QueryTypes.INSERT
       });
+
+      // Update the user's fees
+      const updateUserFeesQuery = `
+        UPDATE users
+        SET fees = fees + :fees
+        WHERE id = :user_id;
+      `;
+      await db.query(updateUserFeesQuery, {
+        replacements: { fees: fees, user_id: User_id },
+        type: QueryTypes.UPDATE
+      });
+
+      // After successful booking, update the time_slots table
+      const updateParkingQuery = `
+        UPDATE time_slots
+        SET ${Location_ID} = 1
+        WHERE slot_time >= :start_time AND slot_time < :end_time;
+      `;
+      await db.query(updateParkingQuery, {
+        replacements: { start_time: Start_time, end_time: End_time },
+        type: QueryTypes.UPDATE
+      });
+
+      return { message: 'Booking successful, parking space updated, and fees added to user account' };
     } else {
-      // Parking space not available
-      callback(null, { message: 'Parking space not available' });
+      return { message: 'No available parking space' };
     }
-  });
+  } catch (err) {
+    throw new Error('Error booking parking space: ' + err.message);
+  }
 };
 
-exports.bookParkingSpace = (req, res) => {
-  const { User_id, Location_ID, Car_Number, Car_Type, Date, Start_time, End_time } = req.body;
+exports.bookParkingSpace = async (req, res) => {
+  const { UserID, Location_ID, Vehicle_Number, Vehicle_Type, Start_time, End_time } = req.body;
 
-  // Logic to handle booking (similar to what we have implemented earlier)
-  BookingReservation.create({
-    User_id, Location_ID, Car_Number, Car_Type, Date, Start_time, End_time
-  })
-    .then(() => res.redirect('/'))
-    .catch(err => res.status(500).send('Error booking parking space'));
+  try {
+    const result = await exports.bookParking(UserID, Location_ID, Vehicle_Number, Vehicle_Type, Start_time, End_time);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Error booking parking space', details: err.message });
+  }
 };
-
